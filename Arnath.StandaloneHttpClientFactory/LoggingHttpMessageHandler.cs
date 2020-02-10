@@ -13,7 +13,9 @@ namespace Arnath.StandaloneHttpClientFactory
     /// <summary>
     /// Delegating HTTP message handler that logs some basic info about the
     /// request and response. The LogRequestStart and LogRequestEnd methods
-    /// can be overridden to do custom logging.
+    /// can be overridden to do custom logging. Largely based on the 
+    /// Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler" class
+    /// but it's not used directly to avoid a bunch of ASP.NET dependencies.
     /// </summary>
     public class LoggingHttpMessageHandler : DelegatingHandler
     {
