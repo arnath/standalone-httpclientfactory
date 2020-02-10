@@ -1,4 +1,7 @@
-﻿namespace Arnath.StandaloneHttpClientFactory
+﻿// Copyright (c) Vijay Prakash. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+namespace Arnath.StandaloneHttpClientFactory
 {
     using System;
     using System.Net.Http;
@@ -6,9 +9,9 @@
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// Factory for System.Net.Http.HttpClient instances that follow the recommended
-    /// best practices for creation and disposal. See <a href="https://github.com/arnath/standalonehttpclientfactory">
-    /// https://github.com/arnath/standalonehttpclientfactory</a> for more details.
+    /// Factory for <see cref="HttpClient"/> instances that follows the recommended
+    /// best practices for creation and disposal. See <a href="https://github.com/arnath/standalonehttpclientfactory" />
+    /// for more details.
     /// </summary>
     public class StandaloneHttpClientFactory : IHttpClientFactory, IDisposable
     {
@@ -68,8 +71,8 @@
         }
 
         /// <summary>
-        /// Creates an HTTP client with the factory's pooled connection lifetime and
-        /// delegating handlers.
+        /// Creates an HTTP client instance with the factory's pooled connection lifetime
+        /// and delegating handlers.
         /// </summary>
         /// <returns>The HTTP client instance. This can be disposed freely; the instances
         /// returned by the factory will handle doing the right thing.</returns>
