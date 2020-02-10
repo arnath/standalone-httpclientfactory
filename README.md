@@ -43,7 +43,9 @@ You can also specify your own set of delegating handlers if desired. They must i
 ```csharp
 public class CorrelationIdMessageHandler : DelegatingHandler
 {
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
         if (request == null)
         {

@@ -42,6 +42,8 @@ namespace Arnath.StandaloneHttpClientFactory
             this.Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        protected ILogger Logger { get; }
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (request == null)
@@ -57,8 +59,6 @@ namespace Arnath.StandaloneHttpClientFactory
 
             return response;
         }
-
-        protected ILogger Logger { get; }
 
         /// <summary>
         /// Called before the request is dispatched to log information about the request.

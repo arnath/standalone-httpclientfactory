@@ -46,10 +46,10 @@ namespace Arnath.StandaloneHttpClientFactory
         /// delegating handler that uses the provided ILogger to create a
         /// LoggingHttpMessageHandler that logs some info about requests.
         /// </summary>
-        /// <param name="pooledConnectionLifetime">The length of time to use pooled connections.</param>
+        /// <param name="connectionLifetime">The lifetime of connections to each host.</param>
         /// <param name="logger">The logger to which to log info about requests.</param>
-        public StandaloneHttpClientFactory(TimeSpan pooledConnectionLifetime, ILogger logger)
-            : this(pooledConnectionLifetime, new LoggingHttpMessageHandler(logger))
+        public StandaloneHttpClientFactory(TimeSpan connectionLifetime, ILogger logger)
+            : this(connectionLifetime, new LoggingHttpMessageHandler(logger))
         {
             
         }
@@ -59,15 +59,15 @@ namespace Arnath.StandaloneHttpClientFactory
         /// specified value for pooled connection lifetime and the specified
         /// set of delegating handlers.
         /// </summary>
-        /// <param name="pooledConnectionLifetime">The length of time to use pooled connections.</param>
+        /// <param name="connectionLifetime">The lifetime of connections to each host.</param>
         /// <param name="delegatingHandlers">Array of DelegatingHandler instances that can be
         /// used for logging, etc. See LoggingHttpMessageHandler for an example.</param>
-        public StandaloneHttpClientFactory(TimeSpan pooledConnectionLifetime, params DelegatingHandler[] delegatingHandlers)
+        public StandaloneHttpClientFactory(TimeSpan connectionLifetime, params DelegatingHandler[] delegatingHandlers)
         {
 #if NETCOREAPP
-            this.frameworkSpecificFactory = new DotNetCoreHttpClientFactory(pooledConnectionLifetime, delegatingHandlers);
+            this.frameworkSpecificFactory = new DotNetCoreHttpClientFactory(connectionLifetime, delegatingHandlers);
 #else
-            this.frameworkSpecificFactory = new DotNetStandardHttpClientFactory(delegatingHandlers);
+            this.frameworkSpecificFactory = new DotNetStandardHttpClientFactory(connectionLifetime, delegatingHandlers);
 #endif
         }
 
@@ -165,10 +165,10 @@ namespace Arnath.StandaloneHttpClientFactory
         {
             private readonly Lazy<NonDisposableHttpClient> lazyClient;
 
-            internal DotNetStandardHttpClientFactory(params DelegatingHandler[] delegatingHandlers)
+            internal DotNetStandardHttpClientFactory(TimeSpan connectionLifetime, params DelegatingHandler[] delegatingHandlers)
             {
                 this.lazyClient = new Lazy<NonDisposableHttpClient>(
-                    () => CreateLazyClient(delegatingHandlers),
+                    () => CreateLazyClient(connectionLifetime, delegatingHandlers),
                     LazyThreadSafetyMode.ExecutionAndPublication);
             }
 
@@ -185,11 +185,17 @@ namespace Arnath.StandaloneHttpClientFactory
                 }
             }
 
-            private static NonDisposableHttpClient CreateLazyClient(params DelegatingHandler[] delegatingHandlers)
+            private static NonDisposableHttpClient CreateLazyClient(TimeSpan connectionLifetime, params DelegatingHandler[] delegatingHandlers)
             {
-                HttpMessageHandler handler = CreateHandlerPipeline(new HttpClientHandler(), delegatingHandlers);
+                ServicePointHttpMessageHandler handler =
+                    new ServicePointHttpMessageHandler(
+                        connectionLifetime,
+                        new HttpClientHandler());
 
-                return new NonDisposableHttpClient(handler);
+                return new NonDisposableHttpClient(
+                    CreateHandlerPipeline(
+                        handler,
+                        delegatingHandlers));
             }
         }
 
