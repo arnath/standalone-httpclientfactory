@@ -6,7 +6,9 @@ I wrote this because the .NET `HttpClient` class is great but has some quirks th
 1. For one thing, the class is disposable but when you dispose it, the underlying socket is not immediately released. This means that if you are making a bunch of outgoing connections and you create and dispose it every time you make a call, you can run into socket exhaustion. For more info, see the [this](https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/) excellent blog post. As such, the class is intended to be instantiated once and reused throughout the life of your application.
 2. If you do actually use a singleton `HttpClient` instance, you can run into a second issue where DNS changes aren't respected. By default, the connection close timeout is set to infinite so the client never refreshes its DNS cache so if an entry changes, your client will not update until it is disposed.
 
-There is a Microsoft official `IHttpClientFactory` in the [Microsoft.Extensions.Http](https://www.nuget.org/packages/Microsoft.Extensions.Http/) NuGet package. However, Microsoft has decided to follow a path with a lot of the .NET Core libraries where things are super tightly tied into ASP.NET Core and its dependency injection framework. If you don't want to use this, there's no way to use the official Microsoft package. ASP.NET Core is often great but I don't like being tied into so much magic and in particular, Microsoft's specific dependency injection framework. However, I found a GitHub [issue](https://github.com/dotnet/extensions/issues/1345#issuecomment-480548175) that described the best practices for using `HttpClient` in both .NET Core and .NET Standard and thought it would be useful to make a standalone package.
+There is a Microsoft official `IHttpClientFactory` in the [Microsoft.Extensions.Http](https://www.nuget.org/packages/Microsoft.Extensions.Http/) NuGet package that solves these issues. However, Microsoft has decided to follow a path with a lot of the .NET Core libraries where things are super tightly tied into ASP.NET Core and its dependency injection framework. If you don't want to use this, there's no way to use the official Microsoft package. ASP.NET Core is often great but I don't like being forced to use it and all the magic that comes with it. 
+
+After doing a bunch of looking around for alternative implementations, I found a GitHub [issue](https://github.com/dotnet/extensions/issues/1345#issuecomment-480548175) that described the best practices for using `HttpClient` in both .NET Core and .NET Standard. However, I couldnt' find any alternates so I decided to make my own.
 
 ## Installation
 
@@ -14,7 +16,7 @@ You can find the latest release here: https://www.nuget.org/packages/Arnath.Stan
 
 ## Usage
 
-To create and use a simple `HttpClient` instance, just instantiate the factory and use the client in a using statement. The `HttpClient` instance returned by the factory will handle the proper disposal behavior for .NET Standard. The `StandaloneHttpClientFactory` itself is disposable but should only be created and disposed once, at the beginning and end of your application's lifetime.'
+To create and use a simple `HttpClient` instance, just instantiate the factory and use the client in a using statement. The `HttpClient` instance returned by the factory will handle the proper disposal behavior for .NET Standard. The `StandaloneHttpClientFactory` itself is disposable but should only be created at the beginning of your application's lifetime and disposed at the end.
 
 ```csharp
 // This uses a default value of 15 minutes for the pooled connection lifetime
@@ -30,7 +32,7 @@ using (HttpClient client = factory.CreateClient())
 factory.Dispose();
 ```
 
-You can pass an `ILogger` instance to the factory to add a `LoggingHttpMessageHandler` to the handler chain that logs some basic information about requests. The logging functions in this class can be customized by overriding them.
+You can pass an `ILogger` instance to the factory to add a `LoggingHttpMessageHandler` to the handler chain that logs some basic information about requests.
 ```csharp
 // Adds a LoggingHttpMessageHandler to the handler chain.
 ILogger logger = new ConcreteLogger();
@@ -41,7 +43,7 @@ You can also specify your own set of delegating handlers if desired. They must i
 ```csharp
 public class CorrelationIdMessageHandler : DelegatingHandler
 {
-	protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (request == null)
         {
@@ -56,4 +58,4 @@ public class CorrelationIdMessageHandler : DelegatingHandler
 
 StandaloneHttpClientFactory factory = new StandaloneHttpClientFactory(new CorrelationIdMessageHandler());
 ```
-You can look at `LoggingHttpMessageHandler` for an example delegating handler.
+You can look at `LoggingHttpMessageHandler` for an example delegating handler. The `LoggingHttpMessageHandler` can also be overridden to change the logging methods and then passed in as a delegating handler.
