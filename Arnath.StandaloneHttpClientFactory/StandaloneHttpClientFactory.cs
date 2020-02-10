@@ -4,6 +4,7 @@
 namespace Arnath.StandaloneHttpClientFactory
 {
     using System;
+    using System.Net;
     using System.Net.Http;
     using System.Threading;
     using Microsoft.Extensions.Logging;
@@ -113,12 +114,15 @@ namespace Arnath.StandaloneHttpClientFactory
 
         private void Dispose(bool disposing)
         {
-#if !NETCOREAPP
-            if (this.frameworkSpecificFactory is DotNetStandardHttpClientFactory standardClientFactory)
+            if (disposing)
             {
-                standardClientFactory.Dispose();
-            }
+#if !NETCOREAPP
+                if (this.frameworkSpecificFactory is DotNetStandardHttpClientFactory standardClientFactory)
+                {
+                    standardClientFactory.Dispose();
+                }
 #endif
+            }
         }
 
 #if NETCOREAPP
@@ -183,7 +187,7 @@ namespace Arnath.StandaloneHttpClientFactory
 
             private static NonDisposableHttpClient CreateLazyClient(params DelegatingHandler[] delegatingHandlers)
             {
-                HttpMessageHandler handler = CreateHandlerPipeline(new HttpClientHandler());
+                HttpMessageHandler handler = CreateHandlerPipeline(new HttpClientHandler(), delegatingHandlers);
 
                 return new NonDisposableHttpClient(handler);
             }
