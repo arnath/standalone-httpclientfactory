@@ -16,6 +16,8 @@ namespace Arnath.StandaloneHttpClientFactory
     /// </summary>
     public class StandaloneHttpClientFactory : IHttpClientFactory, IDisposable
     {
+        internal static readonly TimeSpan DefaultConnectionLifetime = TimeSpan.FromMinutes(15);
+
         private readonly IHttpClientFactory frameworkSpecificFactory;
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace Arnath.StandaloneHttpClientFactory
         /// handlers.
         /// </summary>
         public StandaloneHttpClientFactory()
-            : this(logger: null)
+            : this(DefaultConnectionLifetime, delegatingHandlers: null)
         {
         }
 
@@ -36,7 +38,7 @@ namespace Arnath.StandaloneHttpClientFactory
         /// </summary>
         /// <param name="logger">The logger to which to log info about requests.</param>
         public StandaloneHttpClientFactory(ILogger logger)
-            : this(TimeSpan.FromMinutes(15), logger)
+            : this(DefaultConnectionLifetime, logger)
         {
         }
 
@@ -51,7 +53,18 @@ namespace Arnath.StandaloneHttpClientFactory
         public StandaloneHttpClientFactory(TimeSpan connectionLifetime, ILogger logger)
             : this(connectionLifetime, new LoggingHttpMessageHandler(logger))
         {
-            
+        }
+
+        /// <summary>
+        /// Creates a new instance of the StandaloneHttpClientFactory class with the
+        /// default value of 15 mins for pooled connection lifetime and the specified
+        /// set of delegating handlers.
+        /// </summary>
+        /// <param name="delegatingHandlers">Array of DelegatingHandler instances that can be
+        /// used for logging, etc. See LoggingHttpMessageHandler for an example.</param>
+        public StandaloneHttpClientFactory(params DelegatingHandler[] delegatingHandlers)
+            : this(DefaultConnectionLifetime, delegatingHandlers)
+        {
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace Arnath.StandaloneHttpClientFactory
         /// </summary>
         /// <param name="logger">The logger to which to log info about requests.</param>
         public LoggingHttpMessageHandler(ILogger logger)
-            : this(logger, null)
+            : this(logger, innerHandler: null)
         {
         }
 
@@ -37,9 +37,12 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <param name="logger">The logger to which to log info about requests.</param>
         /// <param name="innerHandler">The inner handler to call in-between logging.</param>
         public LoggingHttpMessageHandler(ILogger logger, HttpMessageHandler innerHandler)
-            : base(innerHandler)
         {
             this.Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            if (innerHandler != null)
+            {
+                this.InnerHandler = innerHandler;
+            }
         }
 
         protected ILogger Logger { get; }

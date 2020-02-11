@@ -8,8 +8,6 @@
 
     internal class ServicePointHttpMessageHandler : DelegatingHandler
     {
-        private readonly TimeSpan connectionLeaseTimeout;
-
         public ServicePointHttpMessageHandler(TimeSpan connectionLeaseTimeout)
             : this(connectionLeaseTimeout, null)
         {
@@ -18,8 +16,10 @@
         public ServicePointHttpMessageHandler(TimeSpan connectionTimeout, HttpMessageHandler innerHandler)
             : base(innerHandler)
         {
-            this.connectionLeaseTimeout = connectionTimeout;
+            this.ConnectionLeaseTimeout = connectionTimeout;
         }
+
+        public TimeSpan ConnectionLeaseTimeout { get; }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -29,7 +29,7 @@
             }
 
             ServicePoint servicePoint = ServicePointManager.FindServicePoint(request.RequestUri);
-            servicePoint.ConnectionLeaseTimeout = (int)connectionLeaseTimeout.TotalMilliseconds;
+            servicePoint.ConnectionLeaseTimeout = (int)this.ConnectionLeaseTimeout.TotalMilliseconds;
 
             return base.SendAsync(request, cancellationToken);
         }
