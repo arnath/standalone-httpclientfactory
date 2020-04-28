@@ -8,7 +8,7 @@ I wrote this because the .NET `HttpClient` class is great but has some quirks th
 
 There is a Microsoft official `IHttpClientFactory` in the [Microsoft.Extensions.Http](https://www.nuget.org/packages/Microsoft.Extensions.Http/) NuGet package that solves these issues. However, Microsoft has decided to follow a path with a lot of the .NET Core libraries where things are super tightly tied into ASP.NET Core and its dependency injection framework. If you don't want to use this, there's no way to use the official Microsoft package. ASP.NET Core is often great but I don't like being forced to use it and all the magic that comes with it. 
 
-After doing a bunch of looking around for alternative implementations, I found a GitHub [issue](https://github.com/dotnet/extensions/issues/1345#issuecomment-480548175) that described the best practices for using `HttpClient` in both .NET Core and .NET Standard. However, I couldnt' find any alternates so I decided to make my own.
+After doing a bunch of looking around for alternative implementations, I found a GitHub [issue](https://github.com/dotnet/extensions/issues/1345#issuecomment-480548175) that described the best practices for using `HttpClient` in both .NET Core and .NET Standard. However, I couldn't find any alternates so I decided to make my own.
 
 ## Installation
 
