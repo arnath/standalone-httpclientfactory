@@ -7,7 +7,7 @@ on:
 
 jobs:
   push:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -17,8 +17,8 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore --output ./Drop/
+      run: dotnet build --configuration Release --no-restore --output .\Drop\
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Push
-      run: dotnet nuget push Drop/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push Drop\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
