@@ -2,13 +2,12 @@ name: Publish NuGet package
 
 on:
   push:
-    branches: [ master ]
+    branches:
+        - master
 
 jobs:
-  build:
-
+  push:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
