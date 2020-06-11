@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore --o ./Drop/
+      run: dotnet build --configuration Release --no-restore --output ./Drop/
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Push
