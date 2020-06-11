@@ -1,4 +1,7 @@
-﻿namespace Arnath.StandaloneHttpClientFactory.DotNetFramework.UnitTests
+﻿// Copyright (c) Vijay Prakash. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+namespace Arnath.StandaloneHttpClientFactory.DotNetFramework.UnitTests
 {
     using System;
     using System.Net.Http;
@@ -18,7 +21,7 @@
                 {
                     HttpMessageHandler handler = GetHandler(client);
 
-                    Assert.IsType<ServicePointHttpMessageHandler>(GetHandler(client));
+                    Assert.IsType<ServicePointHttpMessageHandler>(handler);
                     Assert.Equal(StandaloneHttpClientFactory.DefaultConnectionLifetime, ((ServicePointHttpMessageHandler)handler).ConnectionLeaseTimeout);
                 }
             }
@@ -34,7 +37,7 @@
                 {
                     HttpMessageHandler handler = GetHandler(client);
 
-                    Assert.IsType<ServicePointHttpMessageHandler>(GetHandler(client));
+                    Assert.IsType<ServicePointHttpMessageHandler>(handler);
                     Assert.Equal(connectionLifetime, ((ServicePointHttpMessageHandler)handler).ConnectionLeaseTimeout);
                 }
             }
@@ -49,7 +52,7 @@
                 {
                     HttpMessageHandler handler = GetHandler(client);
 
-                    Assert.IsType<LoggingHttpMessageHandler>(GetHandler(client));
+                    Assert.IsType<LoggingHttpMessageHandler>(handler);
                     LoggingHttpMessageHandler loggingHandler = (LoggingHttpMessageHandler)handler;
                     Assert.IsType<ServicePointHttpMessageHandler>(loggingHandler.InnerHandler);
                 }

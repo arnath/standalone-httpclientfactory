@@ -1,3 +1,6 @@
+// Copyright (c) Vijay Prakash. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 namespace Arnath.StandaloneHttpClientFactory.DotNetCore.UnitTests
 {
     using System;
@@ -18,7 +21,7 @@ namespace Arnath.StandaloneHttpClientFactory.DotNetCore.UnitTests
             using HttpClient client = httpClientFactory.CreateClient();
             HttpMessageHandler handler = GetHandler(client);
 
-            Assert.IsType<SocketsHttpHandler>(GetHandler(client));
+            Assert.IsType<SocketsHttpHandler>(handler);
             Assert.Equal(StandaloneHttpClientFactory.DefaultConnectionLifetime, ((SocketsHttpHandler)handler).PooledConnectionLifetime);
         }
 
@@ -30,7 +33,7 @@ namespace Arnath.StandaloneHttpClientFactory.DotNetCore.UnitTests
             using HttpClient client = httpClientFactory.CreateClient();
             HttpMessageHandler handler = GetHandler(client);
 
-            Assert.IsType<SocketsHttpHandler>(GetHandler(client));
+            Assert.IsType<SocketsHttpHandler>(handler);
             Assert.Equal(connectionLifetime, ((SocketsHttpHandler)handler).PooledConnectionLifetime);
         }
 
@@ -41,7 +44,7 @@ namespace Arnath.StandaloneHttpClientFactory.DotNetCore.UnitTests
             using HttpClient client = httpClientFactory.CreateClient();
             HttpMessageHandler handler = GetHandler(client);
 
-            Assert.IsType<LoggingHttpMessageHandler>(GetHandler(client));
+            Assert.IsType<LoggingHttpMessageHandler>(handler);
             LoggingHttpMessageHandler loggingHandler = (LoggingHttpMessageHandler)handler;
             Assert.IsType<SocketsHttpHandler>(loggingHandler.InnerHandler);
         }

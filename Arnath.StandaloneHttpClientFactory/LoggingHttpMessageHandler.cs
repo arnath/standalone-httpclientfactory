@@ -5,6 +5,7 @@ namespace Arnath.StandaloneHttpClientFactory
 {
     using System;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -69,6 +70,8 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <param name="request">The HTTP request that is about to be dispatched.</param>
         protected virtual void LogRequestStart(HttpRequestMessage request)
         {
+            Contract.Requires(request != null);
+
             this.Logger.LogInformation(
                 "Sending HTTP request {HttpMethod} {Uri}",
                 request.Method,
@@ -84,6 +87,8 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <param name="duration">The duration of the request.</param>
         protected virtual void LogRequestEnd(HttpRequestMessage request, HttpResponseMessage response, TimeSpan duration)
         {
+            Contract.Requires(response != null);
+
             this.Logger.LogInformation(
                 "Received HTTP response after {ElapsedMilliseconds}ms - {StatusCode}",
                 duration.TotalMilliseconds,

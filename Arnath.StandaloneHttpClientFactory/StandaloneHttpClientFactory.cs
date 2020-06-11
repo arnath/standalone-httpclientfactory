@@ -4,7 +4,6 @@
 namespace Arnath.StandaloneHttpClientFactory
 {
     using System;
-    using System.Net;
     using System.Net.Http;
     using System.Threading;
     using Microsoft.Extensions.Logging;
@@ -58,7 +57,7 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <summary>
         /// Creates a new instance of the StandaloneHttpClientFactory class with the
         /// default value of 15 mins for pooled connection lifetime and the specified
-        /// set of delegating handlers.
+        /// set of delegating handlers. The delegating handlers will be run in order.
         /// </summary>
         /// <param name="delegatingHandlers">Array of DelegatingHandler instances that can be
         /// used for logging, etc. See LoggingHttpMessageHandler for an example.</param>
@@ -70,7 +69,7 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <summary>
         /// Creates an instance of the StandaloneHttpClientFactory class with the
         /// specified value for pooled connection lifetime and the specified
-        /// set of delegating handlers.
+        /// set of delegating handlers. The delegating handlers will be run in order.
         /// </summary>
         /// <param name="connectionLifetime">The lifetime of connections to each host.</param>
         /// <param name="delegatingHandlers">Array of DelegatingHandler instances that can be
@@ -108,9 +107,11 @@ namespace Arnath.StandaloneHttpClientFactory
         /// <summary>
         /// Linsk together a set of DelegatingHandler instances with the framework specific
         /// handler to generate a handler pipeline that can be used to do things like log
-        /// request and response information.
+        /// request and response information. The delegating handlers will be run in order.
         /// </summary>
-        private static HttpMessageHandler CreateHandlerPipeline(HttpMessageHandler handler, params DelegatingHandler[] delegatingHandlers)
+        private static HttpMessageHandler CreateHandlerPipeline(
+            HttpMessageHandler handler,
+            params DelegatingHandler[] delegatingHandlers)
         {
             HttpMessageHandler next = handler;
             if (delegatingHandlers != null)
@@ -125,7 +126,7 @@ namespace Arnath.StandaloneHttpClientFactory
             return next;
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -148,7 +149,9 @@ namespace Arnath.StandaloneHttpClientFactory
         {
             private readonly Lazy<HttpMessageHandler> lazyHandler;
 
-            internal DotNetCoreHttpClientFactory(TimeSpan pooledConnectionLifetime, params DelegatingHandler[] delegatingHandlers)
+            internal DotNetCoreHttpClientFactory(
+                TimeSpan pooledConnectionLifetime,
+                params DelegatingHandler[] delegatingHandlers)
             {
                 this.lazyHandler = new Lazy<HttpMessageHandler>(
                     () => CreateLazyHandler(pooledConnectionLifetime, delegatingHandlers),
@@ -160,7 +163,9 @@ namespace Arnath.StandaloneHttpClientFactory
                 return new HttpClient(this.lazyHandler.Value, disposeHandler: false);
             }
 
-            private static HttpMessageHandler CreateLazyHandler(TimeSpan pooledConnectionLifetime, params DelegatingHandler[] delegatingHandlers)
+            private static HttpMessageHandler CreateLazyHandler(
+                TimeSpan pooledConnectionLifetime,
+                params DelegatingHandler[] delegatingHandlers)
             {
                 SocketsHttpHandler handler = new SocketsHttpHandler();
                 handler.PooledConnectionLifetime = pooledConnectionLifetime;
@@ -178,7 +183,9 @@ namespace Arnath.StandaloneHttpClientFactory
         {
             private readonly Lazy<NonDisposableHttpClient> lazyClient;
 
-            internal DotNetStandardHttpClientFactory(TimeSpan connectionLifetime, params DelegatingHandler[] delegatingHandlers)
+            internal DotNetStandardHttpClientFactory(
+                TimeSpan connectionLifetime,
+                params DelegatingHandler[] delegatingHandlers)
             {
                 this.lazyClient = new Lazy<NonDisposableHttpClient>(
                     () => CreateLazyClient(connectionLifetime, delegatingHandlers),
@@ -198,12 +205,18 @@ namespace Arnath.StandaloneHttpClientFactory
                 }
             }
 
-            private static NonDisposableHttpClient CreateLazyClient(TimeSpan connectionLifetime, params DelegatingHandler[] delegatingHandlers)
+            private static NonDisposableHttpClient CreateLazyClient(
+                TimeSpan connectionLifetime,
+                params DelegatingHandler[] delegatingHandlers)
             {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                // This handler object is disposed by the HttpClient instance
+                // when the DotNetStandardHttpClientFactory is disposed.
                 ServicePointHttpMessageHandler handler =
                     new ServicePointHttpMessageHandler(
                         connectionLifetime,
                         new HttpClientHandler());
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
                 return new NonDisposableHttpClient(
                     CreateHandlerPipeline(
