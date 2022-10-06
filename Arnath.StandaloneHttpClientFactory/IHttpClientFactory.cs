@@ -10,7 +10,7 @@ namespace Arnath.StandaloneHttpClientFactory
     /// best practices for creation and disposal. See <a href="https://github.com/arnath/standalonehttpclientfactory">
     /// https://github.com/arnath/standalonehttpclientfactory</a> for more details.
     /// </summary>
-    interface IHttpClientFactory
+    public interface IHttpClientFactory
     {
         /// <summary>
         /// Creates an HTTP client instance.
